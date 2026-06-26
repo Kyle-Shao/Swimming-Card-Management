@@ -1,3 +1,5 @@
 #pragma once
 
-long long int getTime();
+#include <ctime>
+
+std::time_t getTime();

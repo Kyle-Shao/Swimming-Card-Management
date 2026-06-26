@@ -2,7 +2,7 @@
 
 #include "Card.h"
 #include <vector>
-#include <hash_map>
+#include <unordered_map>
 
 class CardManager
 {
@@ -19,6 +19,6 @@ public:
 	void createTeacherCard(std::string &tno, std::string &name, Gender gender, const std::string &affiliation);
 	Card &getCard(std::string &cardId);
 private:
-	std::hash_map<std::string, Card> cards;
+	std::unordered_map<std::string, Card> cards;
 };
 

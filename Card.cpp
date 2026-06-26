@@ -1,7 +1,7 @@
 
 #include "Card.h"
 #include "timeutil.h"
-
+#include "strutil.h"
 
 Card::Card() : lost(false) {}
 
@@ -97,9 +97,44 @@ void Card::recordBill(const int amount)
 	bills.push_back(bill);
 }
 
-void Card::read(std::istream is)
+std::istream &operator>>(std::istream &is, Card &card)
 {
-	is >> 
+	readStr(is, card.name);
+	readStr(is, card.affiliation);
+	readStr(is, card.cardId);
+	is.read(reinterpret_cast<char *>(&card.lost), sizeof(card.lost));
+	is.read(reinterpret_cast<char *>(&card.balance), sizeof(card.balance));
+	int g;
+	is.read(reinterpret_cast<char *>(&g), sizeof(g));
+	card.gender = static_cast<Gender>(g);
+	size_t billCount;
+	is.read(reinterpret_cast<char *>(&billCount), sizeof(billCount));
+	card.bills.clear();
+	for (size_t i = 0; i < billCount; i++)
+	{
+		Bill bill;
+		is >> bill;
+		card.bills.push_back(bill);
+	}
+	return is;
+}
+
+std::ostream &operator<<(std::ostream &os, const Card &card)
+{
+	writeStr(os, card.name);
+	writeStr(os, card.affiliation);
+	writeStr(os, card.cardId);
+	os.write(reinterpret_cast<const char *>(&card.lost), sizeof(card.lost));
+	os.write(reinterpret_cast<const char *>(&card.balance), sizeof(card.balance));
+	int g = static_cast<int>(card.gender);
+	os.write(reinterpret_cast<const char *>(&g), sizeof(g));
+	size_t sz = card.bills.size();
+	os.write(reinterpret_cast<const char *>(&sz), sizeof(sz));
+	for (const auto &bill : card.bills)
+	{
+		os << bill;
+	}
+	return os;
 }
 
 Card::~Card() = default;

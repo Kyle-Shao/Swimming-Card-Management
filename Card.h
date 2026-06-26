@@ -44,15 +44,15 @@ public:
 	void recordBill(const int amount);
 
 	// File IO
-	virtual void read(std::istream is);
-	virtual void write(std::ostream os);
+	friend std::istream &operator>>(std::istream &is, Card &card);
+	friend std::ostream &operator<<(std::ostream &os, const Card &card);
 
 	virtual ~Card();
 private:
 	std::string name;
 	Gender gender; 
 	std::string affiliation;
-	const std::string cardId;
+	std::string cardId;
 	bool lost;
 	int balance;
 	std::vector<Bill> bills;

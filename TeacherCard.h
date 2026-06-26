@@ -9,5 +9,8 @@ public:
 	~TeacherCard();
 	void consume() override;
 	bool isProperId(const str &id) override;
+
+	friend std::istream &operator>>(std::istream &is, TeacherCard &card);
+	friend std::ostream &operator<<(std::ostream &os, const TeacherCard &card);
 };
 
