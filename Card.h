@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include "Bill.h"
-#include <iostream>
 
 #define str std::string
 
@@ -13,35 +12,44 @@ enum Gender
 	FEMALE
 };
 
+enum class CardType : char
+{
+	STUDENT = 1,
+	TEACHER = 2
+};
+
 class Card
 {
 public:
 	Card();
-	Card(const str &name, const Gender gender, const str &affiliation, const str &cardId);
+	Card(str name, Gender gender, str affiliation, str cardId);
 
 	// Getter / Setter
 	[[nodiscard]] str getName() const;
 	void setName(const str &newName);
 	[[nodiscard]] Gender getGender() const;
-	void setGender(const Gender gender);
+	void setGender(Gender newGender);
 	[[nodiscard]] str getAffiliation() const;
-	void setAffiliation(const str &newAffi);
+	void setAffiliation(const str &newAffiliation);
 	[[nodiscard]] str getCardId() const;
 	[[nodiscard]] bool isLost() const;
-	void setIsLost(const bool newLost);
-	[[nodiscard]] int getBalance();
+	void setIsLost(bool newLost);
+	[[nodiscard]] int getBalance() const;
 	[[nodiscard]] std::vector<Bill> &getBills();
 
 	// Safety check
 	virtual bool isProperId(const str &id);
 
+	// Type identification for polymorphic serialization
+	[[nodiscard]] virtual CardType getCardType() const = 0;
+
 	// Balance operations
-	virtual void consume(const int money);
-	void charge(const int money);
+	virtual void consume(int money);
+	void charge(int money);
 	virtual void consume();
 
 	// Bill recording
-	void recordBill(const int amount);
+	void recordBill(int amount);
 
 	// File IO
 	friend std::istream &operator>>(std::istream &is, Card &card);

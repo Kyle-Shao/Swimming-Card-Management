@@ -1,18 +1,13 @@
 #include "Bill.h"
+
+#include <utility>
 #include "strutil.h"
 
-Bill::Bill()
-{
-}
+Bill::Bill() : amount(), balance(), timestamp() {}
 
-Bill::Bill(const std::string & cardId, const int amount, const int balance, const std::time_t timestamp) : cardId(cardId), amount(amount), balance(balance), timestamp(timestamp)
-{
-}
+Bill::Bill(std::string cardId, const int amount, const int balance, const std::time_t timestamp) : cardId(std::move(cardId)), amount(amount), balance(balance), timestamp(timestamp) {}
 
-
-Bill::~Bill()
-{
-}
+Bill::~Bill() = default;
 
 std::istream &operator>>(std::istream &is, Bill &bill)
 {

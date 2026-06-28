@@ -2,23 +2,15 @@
 #include "TeacherCard.h"
 
 
-TeacherCard::TeacherCard()
-{
-}
+TeacherCard::TeacherCard() = default;
 
-TeacherCard::TeacherCard(const str & name, const Gender gender, const str & affiliation, const str & cardId) : Card(name, gender, affiliation, cardId)
-{
-}
+TeacherCard::TeacherCard(const str & name, const Gender gender, const str & affiliation, const str & cardId) : Card(name, gender, affiliation, cardId) {}
 
-
-TeacherCard::~TeacherCard()
-{
-
-}
+TeacherCard::~TeacherCard() = default;
 
 void TeacherCard::consume()
 {
-	Card::consume(10);
+	Card::consume(1000);
 }
 
 bool TeacherCard::isProperId(const str & id)

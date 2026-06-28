@@ -2,10 +2,15 @@
 #include <iostream>
 #include <conio.h>
 #include <ctime>
+#include <iomanip>
+
 #include "CardManager.h"
+#include "StudentCard.h"
 
 #define uint unsigned int
+#define CONSOLE_CLEAR "\033[2J\033[1;1H"
 
+void clearConsole();
 
 uint inputUInt(const std::string &hint, const uint min, const uint max, const uint maxLength) {
     std::cout << "[*] " << hint << ": ";
@@ -110,7 +115,7 @@ std::time_t inputDateTime(const std::string &hint) {
                 std::cout << "[!] Invalid date!" << std::endl;
                 return inputDateTime(hint);
             }
-            struct tm tm = {};
+            tm tm = {};
             tm.tm_year = static_cast<int>(year) - 1900;
             tm.tm_mon = static_cast<int>(month) - 1;
             tm.tm_mday = static_cast<int>(day);
@@ -122,6 +127,7 @@ std::time_t inputDateTime(const std::string &hint) {
 }
 
 void printMenu() {
+    clearConsole();
     std::cout
         << "--------------------------------" << std::endl
         << " Swimming Card Manager" << std::endl
@@ -134,56 +140,76 @@ void printMenu() {
         << "--------------------------------" << std::endl;
 }
 
-CardManager manager = CardManager();
+auto manager = CardManager();
 
-void printLoginMenu(const int balance) {
+void printLoginMenu(const Card &card) {
+    clearConsole();
     std::cout
         << "--------------------------------" << std::endl
         << " Card Operations" << std::endl
         << "--------------------------------" << std::endl
-        << " Balance: " << balance << std::endl
-        << " 1. Charge" << std::endl
-        << " 2. Consume (swim)" << std::endl
-        << " 3. View Bills" << std::endl
-        << " 0. Logout" << std::endl
-        << "--------------------------------" << std::endl;
+        << "[" << (card.getCardType() == CardType::STUDENT ? "Student" : "Teacher") << "]" << std::endl
+        << " Name: " << card.getName() << std::endl
+        << " Card ID: " << card.getCardId() << std::endl
+        << " Balance: " << card.getBalance() << std::endl;
+    if (card.getCardType() == CardType::STUDENT) {
+        std::cout << " Free credits: " << dynamic_cast<const StudentCard &>(card).getFreeCredit() << std::endl;
+    }
+    std::cout
+       << "--------------------------------" << std::endl
+       << " 1. Charge" << std::endl
+       << " 2. Consume (swim)" << std::endl
+       << " 3. View Bills" << std::endl
+       << " 0. Logout" << std::endl
+       << "--------------------------------" << std::endl;
 }
 
-void loginLoop(std::string cardId) {
-    Card &card = manager.getCard(cardId);
-    while (true) {
-        printLoginMenu(card.getBalance());
-        const uint op = inputUInt("Select operation", 0, 3, 1);
-        switch (op) {
-            case 0: {
-                std::cout << "[*] Logged out." << std::endl;
-                return;
-            }
-            case 1: {
-                const uint amount = inputUInt("Enter charge amount", 1, 99999, 5);
-                card.charge(static_cast<int>(amount));
-                std::cout << "[*] Charged " << amount << ". New balance: " << card.getBalance() << std::endl;
-                break;
-            }
-            case 2: {
-                card.consume();
-                std::cout << "[*] Consumed. New balance: " << card.getBalance() << std::endl;
-                break;
-            }
-            case 3: {
-                const auto &bills = card.getBills();
-                if (bills.empty()) {
-                    std::cout << "[*] No bills recorded." << std::endl;
-                } else {
-                    std::cout << "[*] Bills:" << std::endl;
-                    for (const auto &bill : bills) {
-                        std::cout << bill << std::endl;
-                    }
+void loginLoop(const std::string& cardId) {
+    try {
+        Card &card = manager.getCard(cardId);
+        while (true) {
+            printLoginMenu(card);
+            switch (inputUInt("Select operation", 0, 3, 1)) {
+                case 0: {
+                    std::cout << "[*] Logged out." << std::endl;
+                    return;
                 }
-                break;
+                case 1: {
+                    const uint amount = inputUInt("Enter charge amount (Yuan)", 1, 99999, 5);
+                    card.charge(static_cast<int>(amount * 100));
+                    std::cout << "[*] Charged " << amount << ". New balance: " << card.getBalance() << std::endl;
+                    break;
+                }
+                case 2: {
+                    try {
+                        card.consume();
+                        std::cout << "[*] Consumed. New balance: " << card.getBalance() << std::endl;
+                    } catch (std::runtime_error &e) {
+                        std::cout << "[*] Cannot consume: " << e.what() << std::endl;
+                    }
+                    break;
+                }
+                case 3: {
+                    if (const auto &bills = card.getBills(); bills.empty()) {
+                        std::cout << "[*] No bills recorded." << std::endl;
+                    } else {
+                        std::cout << "[*] Bills:" << std::endl;
+                        for (const auto &bill : bills) {
+                            std::cout
+                                << bill.getTimestamp() << std::endl
+                                << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << (bill.getAmount() / 100.0) << std::endl
+                                << "Balance: " << (bill.getBalance() / 100.0) << std::endl << std::endl;
+                        }
+                    }
+                    break;
+                }
+                default: break;
             }
-            default: break;
+            getch();
         }
+    } catch (std::runtime_error &e) {
+        std::cout << "[!] " << e.what() << ", press any key to return to the main menu..." << std::endl;
+        getch();
     }
 }
 
@@ -193,12 +219,11 @@ int main()
 
     while (true) {
         printMenu();
-        const uint op = inputUInt("Select operation", 0, 4, 1);
-        switch (op) {
+        switch (inputUInt("Select operation", 0, 4, 1)) {
             case 0: {
                 manager.saveFile();
-                getch();
                 std::cout << "[*] Data saved successfully. Goodbye~" << std::endl;
+                getch();
                 return 0;
             }
             case 1: {
@@ -206,15 +231,20 @@ int main()
                 const std::string name = inputString("Name");
                 std::cout << "[*] Gender (0: Male, 1: Female): ";
                 const uint genderInput = inputUInt("Gender", 0, 1, 1);
-                const Gender gender = static_cast<Gender>(genderInput);
+                const auto gender = static_cast<Gender>(genderInput);
                 const std::string affiliation = inputString("Affiliation");
-                manager.createStudentCard(
-                    const_cast<std::string &>(sno),
-                    const_cast<std::string &>(name),
-                    gender,
-                    affiliation
-                );
-                std::cout << "[*] Student card created successfully." << std::endl;
+                try {
+                    manager.createStudentCard(
+                        sno,
+                        name,
+                        gender,
+                        affiliation
+                    );
+                    std::cout << "[*] Student card created successfully." << std::endl;
+                } catch (std::runtime_error &e) {
+                    std::cout << "[!] " << e.what() << std::endl;
+                }
+                getch();
                 break;
             }
             case 2: {
@@ -222,15 +252,20 @@ int main()
                 const std::string name = inputString("Name");
                 std::cout << "[*] Gender (0: Male, 1: Female): ";
                 const uint genderInput = inputUInt("Gender", 0, 1, 1);
-                const Gender gender = static_cast<Gender>(genderInput);
+                const auto gender = static_cast<Gender>(genderInput);
                 const std::string affiliation = inputString("Affiliation");
-                manager.createTeacherCard(
-                    const_cast<std::string &>(tno),
-                    const_cast<std::string &>(name),
-                    gender,
-                    affiliation
-                );
-                std::cout << "[*] Teacher card created successfully." << std::endl;
+                try {
+                    manager.createTeacherCard(
+                        const_cast<std::string &>(tno),
+                        const_cast<std::string &>(name),
+                        gender,
+                        affiliation
+                    );
+                    std::cout << "[*] Teacher card created successfully." << std::endl;
+                } catch (std::runtime_error &e) {
+                    std::cout << "[!] " << e.what() << std::endl;
+                }
+                getch();
                 break;
             }
             case 3: {
@@ -244,10 +279,18 @@ int main()
                     << " Swimming Card Manager v1.0" << std::endl
                     << " by SXZ, SK, OYH." << std::endl
                     << "--------------------------------" << std::endl;
+                getch();
                 break;
             }
             default: break;
         }
     }
+}
+
+/**
+ * @brief Clear console screen.
+ */
+void clearConsole() {
+    std::cout << CONSOLE_CLEAR;
 }
 

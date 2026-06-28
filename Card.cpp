@@ -1,11 +1,13 @@
 
 #include "Card.h"
+
+#include <utility>
 #include "timeutil.h"
 #include "strutil.h"
 
-Card::Card() : lost(false) {}
+Card::Card() : gender(), lost(false), balance() {}
 
-Card::Card(const str &name, const Gender gender, const str &affiliation, const str &cardId) : name(name), gender(gender), affiliation(affiliation), cardId(cardId), lost(false), balance(0) {}
+Card::Card(str name, const Gender gender, str affiliation, str cardId) : name(std::move(name)), gender(gender), affiliation(std::move(affiliation)), cardId(std::move(cardId)), lost(false), balance(0) {}
 
 str Card::getName() const
 {
@@ -22,9 +24,9 @@ Gender Card::getGender() const
 	return gender;
 }
 
-void Card::setGender(const Gender gender)
+void Card::setGender(const Gender newGender)
 {
-	this->gender = gender;
+	this->gender = newGender;
 }
 
 str Card::getAffiliation() const
@@ -32,9 +34,9 @@ str Card::getAffiliation() const
 	return affiliation;
 }
 
-void Card::setAffiliation(const str & newAffi)
+void Card::setAffiliation(const str & newAffiliation)
 {
-	affiliation = newAffi;
+	affiliation = newAffiliation;
 }
 
 str Card::getCardId() const
@@ -52,7 +54,7 @@ void Card::setIsLost(const bool newLost)
 	lost = newLost;
 }
 
-int Card::getBalance()
+int Card::getBalance() const
 {
 	return balance;
 }
@@ -66,8 +68,7 @@ bool Card::isProperId(const str & id)
 {
 	for (size_t i = 0; i < id.length(); i++)
 	{
-		char c = id.at(i);
-		if (c < '0' || c > '9')
+		if (const char c = id.at(i); c < '0' || c > '9')
 		{
 			return false;
 		}
@@ -77,6 +78,9 @@ bool Card::isProperId(const str & id)
 
 void Card::consume(const int money)
 {
+	if (balance < money) {
+		throw std::runtime_error("Not enough balance");
+	}
 	balance -= money;
 	recordBill(-money);
 }
@@ -93,7 +97,7 @@ void Card::consume()
 
 void Card::recordBill(const int amount)
 {
-	Bill bill = Bill(cardId, amount, balance, getTime());
+	const auto bill = Bill(cardId, amount, balance, getTime());
 	bills.push_back(bill);
 }
 
@@ -126,9 +130,9 @@ std::ostream &operator<<(std::ostream &os, const Card &card)
 	writeStr(os, card.cardId);
 	os.write(reinterpret_cast<const char *>(&card.lost), sizeof(card.lost));
 	os.write(reinterpret_cast<const char *>(&card.balance), sizeof(card.balance));
-	int g = static_cast<int>(card.gender);
-	os.write(reinterpret_cast<const char *>(&g), sizeof(g));
-	size_t sz = card.bills.size();
+	const int gen = card.gender;
+	os.write(reinterpret_cast<const char *>(&gen), sizeof(gen));
+	const size_t sz = card.bills.size();
 	os.write(reinterpret_cast<const char *>(&sz), sizeof(sz));
 	for (const auto &bill : card.bills)
 	{

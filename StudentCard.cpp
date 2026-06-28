@@ -3,21 +3,17 @@
 #include "timeutil.h"
 
 
-StudentCard::StudentCard() : Card(), freeCredit(20)
-{
-}
+StudentCard::StudentCard() : freeCredit(20), lastConsume() {}
 
-StudentCard::StudentCard(const str & name, const Gender gender, const str & affiliation, const str & cardId) : Card(name, gender, affiliation, cardId), freeCredit(20), lastConsume(getTime())
-{
-}
+StudentCard::StudentCard(const str & name, const Gender gender, const str & affiliation, const str & cardId) : Card(name, gender, affiliation, cardId), freeCredit(20), lastConsume(getTime()) {}
 
 void StudentCard::consume(const int money)
 {
-	std::time_t now = getTime();
+	const std::time_t now = getTime();
 
 	// lastConsume < 9.1 < now  -->  reset freeCredit
-	std::tm lastTm = *std::localtime(&lastConsume);
-	std::tm nowTm = *std::localtime(&now);
+	const std::tm lastTm = *std::localtime(&lastConsume);
+	const std::tm nowTm = *std::localtime(&now);
 
 	int lastAcademicYear = lastTm.tm_year + 1900;
 	if (lastTm.tm_mon < 8) lastAcademicYear--;  // tm_mon: 0=Jan, 8=Sep
@@ -41,7 +37,7 @@ void StudentCard::consume(const int money)
 
 void StudentCard::consume()
 {
-	consume(5);
+	consume(500);
 }
 
 bool StudentCard::isProperId(const str & id)

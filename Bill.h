@@ -1,13 +1,17 @@
 #pragma once
-#include <string>
+
 #include <ctime>
+#include <string>
 #include <iostream>
 
 class Bill
 {
 public:
 	Bill();
-	Bill(const std::string &cardId, const int amount, const int balance, const std::time_t timestamp);
+	Bill(std::string cardId, int amount, int balance, std::time_t timestamp);
+	[[nodiscard]] int getAmount() const { return amount; }
+	[[nodiscard]] int getBalance() const { return balance; }
+	[[nodiscard]] std::time_t getTimestamp() const { return timestamp; }
 	~Bill();
 
 	friend std::istream &operator>>(std::istream &is, Bill &bill);

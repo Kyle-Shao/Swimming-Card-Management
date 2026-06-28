@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Card.h"
-#include <vector>
 #include <unordered_map>
+#include <memory>
 
 class CardManager
 {
@@ -15,10 +15,10 @@ public:
 	void saveFile();
 
 	// Card Operations
-	void createStudentCard(std::string &sno, std::string &name, Gender gender, const std::string &affiliation);
+	void createStudentCard(const std::string &sno, const std::string &name, Gender gender, const std::string &affiliation);
 	void createTeacherCard(std::string &tno, std::string &name, Gender gender, const std::string &affiliation);
-	Card &getCard(std::string &cardId);
+	Card &getCard(const std::string &cardId) const;
 private:
-	std::unordered_map<std::string, Card> cards;
+	std::unordered_map<std::string, std::unique_ptr<Card>> cards;
 };
 

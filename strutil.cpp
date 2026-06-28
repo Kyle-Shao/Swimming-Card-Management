@@ -2,7 +2,7 @@
 
 void writeStr(std::ostream &os, const std::string &s)
 {
-	size_t len = s.size();
+	const size_t len = s.size();
 	os.write(reinterpret_cast<const char *>(&len), sizeof(len));
 	os.write(s.data(), static_cast<std::streamsize>(len));
 }
