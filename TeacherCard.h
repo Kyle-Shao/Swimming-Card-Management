@@ -8,7 +8,7 @@ public:
 	TeacherCard(const str &name, Gender gender, const str &affiliation, const str &cardId);
 	~TeacherCard() override;
 	void consume() override;
-	bool isProperId(const str &id) override;
+	static bool isProperId(const str &id);
 	[[nodiscard]] CardType getCardType() const override { return CardType::TEACHER; }
 
 	friend std::istream &operator>>(std::istream &is, TeacherCard &card);

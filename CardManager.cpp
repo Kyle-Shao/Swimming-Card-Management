@@ -11,6 +11,10 @@ CardManager::CardManager() = default;
 
 void CardManager::createStudentCard(const std::string &sno, const std::string &name, const Gender gender, const std::string &affiliation)
 {
+	if (!StudentCard::isProperId(sno))
+	{
+		throw std::runtime_error("Invalid student card ID format: " + sno);
+	}
 	if (cards.contains(sno))
 	{
 		throw std::runtime_error("Card ID already exists: " + sno);
@@ -18,8 +22,12 @@ void CardManager::createStudentCard(const std::string &sno, const std::string &n
 	cards[sno] = std::make_unique<StudentCard>(name, gender, affiliation, sno);
 }
 
-void CardManager::createTeacherCard(std::string &tno, std::string &name, Gender gender, const std::string &affiliation)
+void CardManager::createTeacherCard(const std::string &tno, const std::string &name, const Gender gender, const std::string &affiliation)
 {
+	if (!TeacherCard::isProperId(tno))
+	{
+		throw std::runtime_error("Invalid teacher card ID format: " + tno);
+	}
 	if (cards.contains(tno))
 	{
 		throw std::runtime_error("Card ID already exists: " + tno);

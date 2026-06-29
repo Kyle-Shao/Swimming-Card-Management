@@ -10,7 +10,7 @@ public:
 	~StudentCard() override = default;
 	void consume(int money) override;
 	void consume() override;
-	bool isProperId(const str &id) override;
+	static bool isProperId(const str &id);
 	[[nodiscard]] unsigned int getFreeCredit() const { return freeCredit; }
 	[[nodiscard]] CardType getCardType() const override { return CardType::STUDENT; }
 

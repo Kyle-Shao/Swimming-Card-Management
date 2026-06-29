@@ -38,7 +38,7 @@ public:
 	[[nodiscard]] std::vector<Bill> &getBills();
 
 	// Safety check
-	virtual bool isProperId(const str &id);
+	static bool isProperId(const str &id);
 
 	// Type identification for polymorphic serialization
 	[[nodiscard]] virtual CardType getCardType() const = 0;

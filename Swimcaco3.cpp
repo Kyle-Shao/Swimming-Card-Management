@@ -256,8 +256,8 @@ int main()
                 const std::string affiliation = inputString("Affiliation");
                 try {
                     manager.createTeacherCard(
-                        const_cast<std::string &>(tno),
-                        const_cast<std::string &>(name),
+                        tno,
+                        name,
                         gender,
                         affiliation
                     );
