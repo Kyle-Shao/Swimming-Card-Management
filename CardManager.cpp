@@ -35,11 +35,15 @@ void CardManager::createTeacherCard(const std::string &tno, const std::string &n
 	cards[tno] = std::make_unique<TeacherCard>(name, gender, affiliation, tno);
 }
 
-Card &CardManager::getCard(const std::string &cardId) {
+Card &CardManager::getCard(const std::string &cardId) const {
 	if (!cards.contains(cardId)) {
 		throw std::runtime_error("Card ID does not exist: " + cardId);
 	}
 	return *cards.at(cardId);
+}
+
+bool CardManager::hasCard(const std::string &cardId) const {
+	return cards.contains(cardId);
 }
 
 void CardManager::readFile()

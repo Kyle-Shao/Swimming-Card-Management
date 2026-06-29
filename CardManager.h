@@ -17,7 +17,8 @@ public:
 	// Card Operations
 	void createStudentCard(const std::string &sno, const std::string &name, Gender gender, const std::string &affiliation);
 	void createTeacherCard(const std::string &tno, const std::string &name, Gender gender, const std::string &affiliation);
-	Card &getCard(const std::string &cardId);
+	Card &getCard(const std::string &cardId) const;
+	bool hasCard(const std::string &cardId) const;
 private:
 	std::unordered_map<std::string, std::unique_ptr<Card>> cards;
 };

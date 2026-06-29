@@ -6,6 +6,7 @@
 
 #include "CardManager.h"
 #include "StudentCard.h"
+#include "TeacherCard.h"
 
 #define uint unsigned int
 #define CONSOLE_CLEAR "\033[2J\033[1;1H"
@@ -284,6 +285,14 @@ int main()
             }
             case 1: {
                 const std::string sno = inputString("Student No");
+                if (!StudentCard::isProperId(sno)) {
+                    std::cout << "[!] Illegal student ID!" << std::endl;
+                    break;
+                }
+                if (manager.hasCard(sno)) {
+                    std::cout << "[*] Card ID already exists." << std::endl;
+                    break;
+                }
                 const std::string name = inputString("Name");
                 std::cout << "[*] Gender (0: Male, 1: Female): ";
                 const uint genderInput = inputUInt("Gender", 0, 1, 1);
@@ -305,6 +314,14 @@ int main()
             }
             case 2: {
                 const std::string tno = inputString("Teacher No");
+                if (!TeacherCard::isProperId(tno)) {
+                    std::cout << "[!] Illegal teacher ID!" << std::endl;
+                    break;
+                }
+                if (manager.hasCard(tno)) {
+                    std::cout << "[*] Card ID already exists." << std::endl;
+                    break;
+                }
                 const std::string name = inputString("Name");
                 std::cout << "[*] Gender (0: Male, 1: Female): ";
                 const uint genderInput = inputUInt("Gender", 0, 1, 1);
