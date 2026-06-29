@@ -287,10 +287,12 @@ int main()
                 const std::string sno = inputString("Student No");
                 if (!StudentCard::isProperId(sno)) {
                     std::cout << "[!] Illegal student ID!" << std::endl;
+                    getch();
                     break;
                 }
                 if (manager.hasCard(sno)) {
                     std::cout << "[*] Card ID already exists." << std::endl;
+                    getch();
                     break;
                 }
                 const std::string name = inputString("Name");
@@ -316,10 +318,12 @@ int main()
                 const std::string tno = inputString("Teacher No");
                 if (!TeacherCard::isProperId(tno)) {
                     std::cout << "[!] Illegal teacher ID!" << std::endl;
+                    getch();
                     break;
                 }
                 if (manager.hasCard(tno)) {
                     std::cout << "[*] Card ID already exists." << std::endl;
+                    getch();
                     break;
                 }
                 const std::string name = inputString("Name");
