@@ -197,7 +197,7 @@ void loginLoop(const std::string& cardId) {
                         for (const auto &bill : bills) {
                             std::cout
                                 << bill.getTimestamp() << std::endl
-                                << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << (bill.getAmount() / 100.0) << std::endl
+                                << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << std::fixed << (bill.getAmount() / 100.0) << std::endl
                                 << "Balance: " << (bill.getBalance() / 100.0) << std::endl << std::endl;
                         }
                     }
