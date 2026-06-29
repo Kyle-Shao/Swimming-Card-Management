@@ -197,8 +197,9 @@ void loginLoop(const std::string& cardId) {
                                 const time_t timestamp = bill.getTimestamp();
                                 std::cout
                                     << std::put_time(std::localtime(&timestamp), "%Y-%m-%d %H:%M:%S") << std::endl
-                                    << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << std::fixed << (bill.getAmount() / 100.0) << std::endl
-                                    << "Balance: " << std::setprecision(2) << std::fixed << (bill.getBalance() / 100.0) << std::endl << std::endl;
+                                    << "Transaction: " << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << std::fixed << (bill.getAmount() / 100.0) << std::endl
+                                    << "Balance: " << std::setprecision(2) << std::fixed << (bill.getBalance() / 100.0) << std::endl
+                                    << "--------------------" << std::endl;
                             }
                         }
                         break;
@@ -221,7 +222,7 @@ void loginLoop(const std::string& cardId) {
                         const uint amount = inputUInt("Enter charge amount (Yuan)", 1, 99999, 5);
                         try {
                             card.charge(static_cast<int>(amount * 100));
-                            std::cout << "[*] Charged " << std::setprecision(2) << std::fixed << (amount / 100.0) << ". New balance: " << std::setprecision(2) << std::fixed << (card.getBalance() / 100.0) << std::endl;
+                            std::cout << "[*] Charged " << std::setprecision(2) << std::fixed << amount << ". New balance: " << std::setprecision(2) << std::fixed << (card.getBalance() / 100.0) << std::endl;
                         } catch (std::runtime_error &e) {
                             std::cout << "[*] Cannot charge: " << e.what() << std::endl;
                         }
@@ -245,8 +246,9 @@ void loginLoop(const std::string& cardId) {
                                 const time_t timestamp = bill.getTimestamp();
                                 std::cout
                                     << std::put_time(std::localtime(&timestamp), "%Y-%m-%d %H:%M:%S") << std::endl
-                                    << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << std::fixed << (bill.getAmount() / 100.0) << std::endl
-                                    << "Balance: " << std::setprecision(2) << std::fixed << (bill.getBalance() / 100.0) << std::endl << std::endl;
+                                    << "Transaction: " << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << std::fixed << (bill.getAmount() / 100.0) << std::endl
+                                    << "Balance: " << std::setprecision(2) << std::fixed << (bill.getBalance() / 100.0) << std::endl
+                                    << "--------------------" << std::endl;
                             }
                         }
                         break;
