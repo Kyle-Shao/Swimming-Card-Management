@@ -144,6 +144,7 @@ auto manager = CardManager();
 
 void printLoginMenu(const Card &card) {
     clearConsole();
+    const bool lost = card.isLost();
     std::cout
         << "--------------------------------" << std::endl
         << " Card Operations" << std::endl
@@ -151,16 +152,27 @@ void printLoginMenu(const Card &card) {
         << "[" << (card.getCardType() == CardType::STUDENT ? "Student" : "Teacher") << "]" << std::endl
         << " Name: " << card.getName() << std::endl
         << " Card ID: " << card.getCardId() << std::endl
+        << " Status: " << (lost ? "LOST" : "Normal") << std::endl
         << " Balance: " << card.getBalance() << std::endl;
     if (card.getCardType() == CardType::STUDENT) {
         std::cout << " Free credits: " << dynamic_cast<const StudentCard &>(card).getFreeCredit() << std::endl;
     }
     std::cout
-       << "--------------------------------" << std::endl
-       << " 1. Charge" << std::endl
-       << " 2. Consume (swim)" << std::endl
-       << " 3. View Bills" << std::endl
-       << " 0. Logout" << std::endl
+       << "--------------------------------" << std::endl;
+    if (lost) {
+        std::cout
+            << " 1. View Bills" << std::endl
+            << " 2. Remove lost status" << std::endl
+            << " 0. Logout" << std::endl;
+    } else {
+        std::cout
+            << " 1. Charge" << std::endl
+            << " 2. Consume (swim)" << std::endl
+            << " 3. View Bills" << std::endl
+            << " 4. Report lost" << std::endl
+            << " 0. Logout" << std::endl;
+    }
+    std::cout
        << "--------------------------------" << std::endl;
 }
 
@@ -169,41 +181,81 @@ void loginLoop(const std::string& cardId) {
         Card &card = manager.getCard(cardId);
         while (true) {
             printLoginMenu(card);
-            switch (inputUInt("Select operation", 0, 3, 1)) {
-                case 0: {
-                    std::cout << "[*] Logged out." << std::endl;
-                    return;
-                }
-                case 1: {
-                    const uint amount = inputUInt("Enter charge amount (Yuan)", 1, 99999, 5);
-                    card.charge(static_cast<int>(amount * 100));
-                    std::cout << "[*] Charged " << amount << ". New balance: " << card.getBalance() << std::endl;
-                    break;
-                }
-                case 2: {
-                    try {
-                        card.consume();
-                        std::cout << "[*] Consumed. New balance: " << card.getBalance() << std::endl;
-                    } catch (std::runtime_error &e) {
-                        std::cout << "[*] Cannot consume: " << e.what() << std::endl;
+            if (card.isLost()) {
+                // Lost card: only view bills and remove lost status
+                switch (inputUInt("Select operation", 0, 2, 1)) {
+                    case 0: {
+                        std::cout << "[*] Logged out." << std::endl;
+                        return;
                     }
-                    break;
-                }
-                case 3: {
-                    if (const auto &bills = card.getBills(); bills.empty()) {
-                        std::cout << "[*] No bills recorded." << std::endl;
-                    } else {
-                        std::cout << "[*] Bills:" << std::endl;
-                        for (const auto &bill : bills) {
-                            std::cout
-                                << bill.getTimestamp() << std::endl
-                                << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << std::fixed << (bill.getAmount() / 100.0) << std::endl
-                                << "Balance: " << (bill.getBalance() / 100.0) << std::endl << std::endl;
+                    case 1: {
+                        if (const auto &bills = card.getBills(); bills.empty()) {
+                            std::cout << "[*] No bills recorded." << std::endl;
+                        } else {
+                            std::cout << "[*] Bills:" << std::endl;
+                            for (const auto &bill : bills) {
+                                std::cout
+                                    << bill.getTimestamp() << std::endl
+                                    << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << std::fixed << (bill.getAmount() / 100.0) << std::endl
+                                    << "Balance: " << (bill.getBalance() / 100.0) << std::endl << std::endl;
+                            }
                         }
+                        break;
                     }
-                    break;
+                    case 2: {
+                        card.setIsLost(false);
+                        std::cout << "[*] Lost status removed. Card is now active." << std::endl;
+                        break;
+                    }
+                    default: break;
                 }
-                default: break;
+            } else {
+                // Normal card: full operations
+                switch (inputUInt("Select operation", 0, 4, 1)) {
+                    case 0: {
+                        std::cout << "[*] Logged out." << std::endl;
+                        return;
+                    }
+                    case 1: {
+                        const uint amount = inputUInt("Enter charge amount (Yuan)", 1, 99999, 5);
+                        try {
+                            card.charge(static_cast<int>(amount * 100));
+                            std::cout << "[*] Charged " << amount << ". New balance: " << card.getBalance() << std::endl;
+                        } catch (std::runtime_error &e) {
+                            std::cout << "[*] Cannot charge: " << e.what() << std::endl;
+                        }
+                        break;
+                    }
+                    case 2: {
+                        try {
+                            card.consume();
+                            std::cout << "[*] Consumed. New balance: " << card.getBalance() << std::endl;
+                        } catch (std::runtime_error &e) {
+                            std::cout << "[*] Cannot consume: " << e.what() << std::endl;
+                        }
+                        break;
+                    }
+                    case 3: {
+                        if (const auto &bills = card.getBills(); bills.empty()) {
+                            std::cout << "[*] No bills recorded." << std::endl;
+                        } else {
+                            std::cout << "[*] Bills:" << std::endl;
+                            for (const auto &bill : bills) {
+                                std::cout
+                                    << bill.getTimestamp() << std::endl
+                                    << (bill.getAmount() >= 0 ? "+" : "") << std::setprecision(2) << std::fixed << (bill.getAmount() / 100.0) << std::endl
+                                    << "Balance: " << (bill.getBalance() / 100.0) << std::endl << std::endl;
+                            }
+                        }
+                        break;
+                    }
+                    case 4: {
+                        card.setIsLost(true);
+                        std::cout << "[*] Card has been reported lost. All operations are now locked." << std::endl;
+                        break;
+                    }
+                    default: break;
+                }
             }
             getch();
         }
