@@ -78,6 +78,10 @@ bool Card::isProperId(const str & id)
 
 void Card::consume(const int money)
 {
+	if (isLost())
+	{
+		throw std::runtime_error("Card is lost and locked");
+	}
 	if (balance < money) {
 		throw std::runtime_error("Not enough balance");
 	}
@@ -87,6 +91,10 @@ void Card::consume(const int money)
 
 void Card::charge(const int money)
 {
+	if (isLost())
+	{
+		throw std::runtime_error("Card is lost and locked");
+	}
 	balance += money;
 	recordBill(money);
 }

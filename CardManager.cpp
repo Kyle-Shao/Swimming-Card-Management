@@ -74,5 +74,8 @@ void CardManager::saveFile()
 		{
 			ofs << *tc;
 		}
+		else {
+			throw std::runtime_error("Unknown card type");
+		}
 	}
 }
